@@ -24,6 +24,8 @@ class Company extends Model
         'industry',
         'website',
         'logo',
+        'logoName',
+        'logoUri',
         'email',
         'owner_id',
     ];
