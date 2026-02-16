@@ -23,7 +23,6 @@ class Company extends Model
         'address',
         'industry',
         'website',
-        'logo',
         'logoName',
         'logoUri',
         'email',
