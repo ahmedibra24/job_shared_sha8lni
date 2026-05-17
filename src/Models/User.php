@@ -66,22 +66,6 @@ class User extends Authenticatable
     {
         return $this->hasOne(Company::class, 'owner_id', 'id');
     }
-    protected static function booted(): void
-    {
-        static::deleting(function (User $user) {
-            if (! $user->isForceDeleting()) {
-                $user->companies()->delete(); // soft delete companies
-            }
-        });
-    
-        static::forceDeleting(function (User $user) {
-            $user->companies()->forceDelete(); // hard delete companies
-        });
-    
-        static::restoring(function (User $user) {
-            $user->companies()->withTrashed()->restore(); // optional
-        });
-    }
 
     public function jobApplications()
     {
