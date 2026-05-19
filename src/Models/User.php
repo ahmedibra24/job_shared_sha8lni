@@ -66,23 +66,33 @@ class User extends Authenticatable
     {
         return $this->hasOne(Company::class, 'owner_id', 'id');
     }
-    protected static function booted(): void
-    {
-        static::deleting(function (User $user) {
-            if (! $user->isForceDeleting()) {
-                $user->companies()->delete(); // soft delete companies
-            }
-        });
-    
-        static::forceDeleting(function (User $user) {
-            $user->companies()->forceDelete(); // hard delete companies
-        });
-    
-        static::restoring(function (User $user) {
-            $user->companies()->withTrashed()->restore(); // optional
-        });
-    }
 
+protected static function booted(): void
+{
+    static::deleting(function (User $user) {
+        if (! $user->isForceDeleting()) {
+            // Use model instance so related model events run
+            $company = $user->companies;
+            if ($company) {
+                $company->delete();
+            }
+        }
+    });
+
+    static::forceDeleting(function (User $user) {
+        $company = $user->companies()->withTrashed()->first();
+        if ($company) {
+            $company->forceDelete();
+        }
+    });
+
+    static::restoring(function (User $user) {
+        $company = $user->companies()->withTrashed()->first();
+        if ($company) {
+            $company->restore();
+        }
+    });
+}
     public function jobApplications()
     {
         return $this->hasMany(JobApplication::class, 'applicant_id', 'id');
