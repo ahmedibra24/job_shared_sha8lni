@@ -67,6 +67,7 @@ class User extends Authenticatable
         return $this->hasMany(Company::class, 'owner_id', 'id');
     }
 
+    //? cascading soft deletes and force deletes for companies when user is deleted
     protected static function booted(): void
     {
      static::deleting(function (User $user) {
@@ -74,11 +75,11 @@ class User extends Authenticatable
              $user->companies()->get()->each->delete();
          }
      });
-    
+
      static::forceDeleting(function (User $user) {
          $user->companies()->withTrashed()->get()->each->forceDelete();
      });
-    
+
      static::restoring(function (User $user) {
          $user->companies()->onlyTrashed()->get()->each->restore();
      });

@@ -47,6 +47,25 @@ class Company extends Model
         return $this->hasMany(JobVacancy::class, 'company_id', 'id');
     }
 
+    //? cascading soft deletes and force deletes for companies when user is deleted
+    protected static function booted(): void
+    {
+     static::deleting(function (Company $company) {
+         if (! $company->isForceDeleting()) {
+             $company->companies()->get()->each->delete();
+         }
+     });
+
+     static::forceDeleting(function (Company $company) {
+         $company->companies()->withTrashed()->get()->each->forceDelete();
+     });
+
+     static::restoring(function (Company $company) {
+         $company->companies()->onlyTrashed()->get()->each->restore();
+     });
+    }
+
+
     public function applications()
     {
         // Returns all job applications for this company 
